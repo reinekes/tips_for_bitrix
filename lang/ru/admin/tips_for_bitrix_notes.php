@@ -1,0 +1,35 @@
+<?php
+
+$MESS['TFB_NOTES_ACCESS_DENIED'] = 'Доступ запрещен';
+$MESS['TFB_NOTES_MODULE_NOT_INCLUDED'] = 'Модуль reineke.tipsforbitrix не подключен.';
+$MESS['TFB_NOTES_NOTE_NOT_FOUND'] = 'Заметка не найдена.';
+$MESS['TFB_NOTES_TEXT_REQUIRED'] = 'Текст заметки не может быть пустым.';
+$MESS['TFB_NOTES_TITLE'] = 'Заметки по страницам';
+$MESS['TFB_NOTES_INFO'] = 'Здесь собраны все заметки, которые были добавлены прямо со страниц. Основной сценарий работы: открыть нужную страницу и нажать "Добавить" или "Редактировать".';
+$MESS['TFB_NOTES_UPDATED'] = 'Заметка обновлена.';
+$MESS['TFB_NOTES_EDIT_TITLE'] = 'Редактирование заметки ##ID#';
+$MESS['TFB_NOTES_AREA_LABEL'] = 'Область';
+$MESS['TFB_NOTES_AREA_ADMIN'] = 'Админка';
+$MESS['TFB_NOTES_AREA_PUBLIC'] = 'Публичная часть';
+$MESS['TFB_NOTES_PAGE_LABEL'] = 'Страница';
+$MESS['TFB_NOTES_STATUS_LABEL'] = 'Статус';
+$MESS['TFB_NOTES_COLOR_LABEL'] = 'Цвет';
+$MESS['TFB_NOTES_CUSTOM_COLOR_OPTION'] = 'Свой цвет';
+$MESS['TFB_NOTES_CUSTOM_COLOR_LABEL'] = 'Свой цвет';
+$MESS['TFB_NOTES_TEXT_LABEL'] = 'Текст заметки';
+$MESS['TFB_NOTES_SAVE_BUTTON'] = 'Сохранить';
+$MESS['TFB_NOTES_CANCEL_BUTTON'] = 'Отмена';
+$MESS['TFB_NOTES_TOTAL_LABEL'] = 'Всего заметок';
+$MESS['TFB_NOTES_HEADER_ID'] = 'ID';
+$MESS['TFB_NOTES_HEADER_AREA'] = 'Область';
+$MESS['TFB_NOTES_HEADER_STATUS'] = 'Статус';
+$MESS['TFB_NOTES_HEADER_COLOR'] = 'Цвет';
+$MESS['TFB_NOTES_HEADER_URL'] = 'URL';
+$MESS['TFB_NOTES_HEADER_TEXT'] = 'Текст';
+$MESS['TFB_NOTES_HEADER_UPDATED'] = 'Обновлено';
+$MESS['TFB_NOTES_HEADER_ACTIONS'] = 'Действия';
+$MESS['TFB_NOTES_EMPTY'] = 'Заметок пока нет.';
+$MESS['TFB_NOTES_ACTION_OPEN'] = 'Открыть';
+$MESS['TFB_NOTES_ACTION_EDIT'] = 'Редактировать';
+$MESS['TFB_NOTES_ACTION_DELETE'] = 'Удалить';
+$MESS['TFB_NOTES_DELETE_CONFIRM'] = 'Удалить заметку?';

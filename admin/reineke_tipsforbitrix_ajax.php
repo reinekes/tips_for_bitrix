@@ -15,7 +15,7 @@ foreach ($moduleAdminCandidates as $candidate) {
 
 if ($moduleAdminFile === null) {
     http_response_code(500);
-    echo 'Не найден AJAX-файл модуля reineke.tipsforbitrix.';
+    echo 'Module AJAX file for reineke.tipsforbitrix was not found.';
     return;
 }
 

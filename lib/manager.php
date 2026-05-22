@@ -3,7 +3,10 @@
 namespace TipsForBitrix;
 
 use Bitrix\Main\Application;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\DateTime;
+
+Loc::loadMessages(__FILE__);
 
 class Manager
 {
@@ -28,18 +31,13 @@ class Manager
         'path' => array('/'),
         'show_perms_for' => array('0'),
     );
-    protected static $statusMap = array(
-        'default' => 'Просто заметка',
-        'important' => 'ВАЖНОЕ',
-        'future' => 'Сделать в будущем',
-    );
-    protected static $colorPresets = array(
-        'sand' => array('label' => 'Песочный', 'value' => '#D3A84F'),
-        'sky' => array('label' => 'Синий', 'value' => '#2F7AF2'),
-        'mint' => array('label' => 'Мятный', 'value' => '#2F9E73'),
-        'rose' => array('label' => 'Розовый', 'value' => '#D45A7A'),
-        'violet' => array('label' => 'Сиреневый', 'value' => '#7B61C9'),
-        'graphite' => array('label' => 'Графит', 'value' => '#5C667A'),
+    protected static $colorPresetValues = array(
+        'sand' => '#D3A84F',
+        'sky' => '#2F7AF2',
+        'mint' => '#2F9E73',
+        'rose' => '#D45A7A',
+        'violet' => '#7B61C9',
+        'graphite' => '#5C667A',
     );
 
     public static function canManageNotes()
@@ -256,26 +254,39 @@ class Manager
 
     public static function getStatusMap()
     {
-        return self::$statusMap;
+        return array(
+            'default' => Loc::getMessage('TFB_STATUS_DEFAULT'),
+            'important' => Loc::getMessage('TFB_STATUS_IMPORTANT'),
+            'future' => Loc::getMessage('TFB_STATUS_FUTURE'),
+        );
     }
 
     public static function getColorPresets()
     {
-        return self::$colorPresets;
+        return array(
+            'sand' => array('label' => Loc::getMessage('TFB_COLOR_SAND'), 'value' => self::$colorPresetValues['sand']),
+            'sky' => array('label' => Loc::getMessage('TFB_COLOR_SKY'), 'value' => self::$colorPresetValues['sky']),
+            'mint' => array('label' => Loc::getMessage('TFB_COLOR_MINT'), 'value' => self::$colorPresetValues['mint']),
+            'rose' => array('label' => Loc::getMessage('TFB_COLOR_ROSE'), 'value' => self::$colorPresetValues['rose']),
+            'violet' => array('label' => Loc::getMessage('TFB_COLOR_VIOLET'), 'value' => self::$colorPresetValues['violet']),
+            'graphite' => array('label' => Loc::getMessage('TFB_COLOR_GRAPHITE'), 'value' => self::$colorPresetValues['graphite']),
+        );
     }
 
     public static function normalizeStatus($status)
     {
         $status = trim((string) $status);
+        $statusMap = self::getStatusMap();
 
-        return isset(self::$statusMap[$status]) ? $status : 'default';
+        return isset($statusMap[$status]) ? $status : 'default';
     }
 
     public static function normalizeColor($color)
     {
         $color = trim((string) $color);
+        $colorPresets = self::getColorPresets();
 
-        if (isset(self::$colorPresets[$color])) {
+        if (isset($colorPresets[$color])) {
             return $color;
         }
 
@@ -289,9 +300,10 @@ class Manager
     public static function resolveColorValue($color)
     {
         $color = self::normalizeColor($color);
+        $colorPresets = self::getColorPresets();
 
-        if (isset(self::$colorPresets[$color])) {
-            return self::$colorPresets[$color]['value'];
+        if (isset($colorPresets[$color])) {
+            return $colorPresets[$color]['value'];
         }
 
         return $color;

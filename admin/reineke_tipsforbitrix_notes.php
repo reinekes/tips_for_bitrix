@@ -15,7 +15,7 @@ foreach ($moduleAdminCandidates as $candidate) {
 
 if ($moduleAdminFile === null) {
     http_response_code(500);
-    echo 'Не найден файл админской страницы модуля reineke.tipsforbitrix.';
+    echo 'Module admin page file for reineke.tipsforbitrix was not found.';
     return;
 }
 

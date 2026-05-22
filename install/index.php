@@ -1,7 +1,5 @@
 <?php
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_before.php';
-
 use Bitrix\Main\Application;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\Localization\Loc;
@@ -57,12 +55,26 @@ class reineke_tipsforbitrix extends CModule
 
     public function DoUninstall()
     {
-        $this->unInstallEvents();
-        ModuleManager::unRegisterModule($this->MODULE_ID);
-        $this->unInstallFiles();
-        $this->unInstallDB();
-
         global $APPLICATION;
+        $step = isset($_REQUEST['step']) ? (int) $_REQUEST['step'] : 1;
+
+        if ($step < 2) {
+            if (is_object($APPLICATION)) {
+                $APPLICATION->IncludeAdminFile(
+                    Loc::getMessage('TFB_UNINSTALL_TITLE'),
+                    __DIR__ . '/unstep.php'
+                );
+            }
+
+            return;
+        }
+
+        $saveData = isset($_REQUEST['savedata']) && $_REQUEST['savedata'] === 'Y';
+
+        $this->unInstallEvents();
+        $this->unInstallFiles();
+        $this->unInstallDB(!$saveData);
+        ModuleManager::unRegisterModule($this->MODULE_ID);
 
         if (is_object($APPLICATION)) {
             $APPLICATION->IncludeAdminFile(
@@ -117,8 +129,12 @@ class reineke_tipsforbitrix extends CModule
         );
     }
 
-    public function unInstallDB()
+    public function unInstallDB($dropData = true)
     {
+        if (!$dropData) {
+            return;
+        }
+
         $connection = Application::getConnection();
 
         if ($connection->isTableExists('b_tips_for_bitrix_note')) {

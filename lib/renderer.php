@@ -2,8 +2,11 @@
 
 namespace TipsForBitrix;
 
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Web\Json;
+
+Loc::loadMessages(__FILE__);
 
 class Renderer
 {
@@ -41,6 +44,7 @@ class Renderer
             'noteColor' => $note ? (string) $note['COLOR'] : 'sand',
             'statusMap' => Manager::getStatusMap(),
             'colorPresets' => Manager::getColorPresets(),
+            'messages' => self::getMessages(),
             'ajaxUrl' => '/bitrix/admin/reineke_tipsforbitrix_ajax.php',
             'notesListUrl' => '/bitrix/admin/reineke_tipsforbitrix_notes.php?lang=' . urlencode(defined('LANGUAGE_ID') ? LANGUAGE_ID : 'ru'),
             'sessid' => bitrix_sessid(),
@@ -62,6 +66,34 @@ class Renderer
         );
 
         return in_array($path, $skippedPages, true);
+    }
+
+    protected static function getMessages()
+    {
+        return array(
+            'statusLabel' => Loc::getMessage('TFB_RENDERER_STATUS_LABEL'),
+            'colorLabel' => Loc::getMessage('TFB_RENDERER_COLOR_LABEL'),
+            'customColorTitle' => Loc::getMessage('TFB_RENDERER_CUSTOM_COLOR_TITLE'),
+            'colorHelp' => Loc::getMessage('TFB_RENDERER_COLOR_HELP'),
+            'markImportant' => Loc::getMessage('TFB_RENDERER_MARK_IMPORTANT'),
+            'markFuture' => Loc::getMessage('TFB_RENDERER_MARK_FUTURE'),
+            'addNoteButton' => Loc::getMessage('TFB_RENDERER_ADD_NOTE_BUTTON'),
+            'title' => Loc::getMessage('TFB_RENDERER_TITLE'),
+            'listLink' => Loc::getMessage('TFB_RENDERER_LIST_LINK'),
+            'editTitle' => Loc::getMessage('TFB_RENDERER_EDIT_TITLE'),
+            'addButton' => Loc::getMessage('TFB_RENDERER_ADD_BUTTON'),
+            'saveProgress' => Loc::getMessage('TFB_RENDERER_SAVE_PROGRESS'),
+            'saveButton' => Loc::getMessage('TFB_RENDERER_SAVE_BUTTON'),
+            'cancelButton' => Loc::getMessage('TFB_RENDERER_CANCEL_BUTTON'),
+            'deleteButton' => Loc::getMessage('TFB_RENDERER_DELETE_BUTTON'),
+            'saveFailed' => Loc::getMessage('TFB_RENDERER_SAVE_FAILED'),
+            'noteSaved' => Loc::getMessage('TFB_RENDERER_NOTE_SAVED'),
+            'noteDeleted' => Loc::getMessage('TFB_RENDERER_NOTE_DELETED'),
+            'saveError' => Loc::getMessage('TFB_RENDERER_SAVE_ERROR'),
+            'deleteConfirm' => Loc::getMessage('TFB_RENDERER_DELETE_CONFIRM'),
+            'deleteFailed' => Loc::getMessage('TFB_RENDERER_DELETE_FAILED'),
+            'deleteError' => Loc::getMessage('TFB_RENDERER_DELETE_ERROR'),
+        );
     }
 
     protected static function getStyle()
@@ -154,6 +186,7 @@ HTML;
     if (!config || document.getElementById('tfb-note-root')) {
         return;
     }
+    var messages = config.messages || {};
 
     function escapeHtml(text) {
         return String(text || '').replace(/[&<>"']/g, function(symbol) {
@@ -271,7 +304,7 @@ HTML;
     }
 
     function renderStatusOptions(selectedStatus) {
-        var html = '<div class="tfb-note-card__field"><div class="tfb-note-card__label">Статус</div><div class="tfb-note-card__status-grid">';
+        var html = '<div class="tfb-note-card__field"><div class="tfb-note-card__label">' + escapeHtml(messages.statusLabel || '') + '</div><div class="tfb-note-card__status-grid">';
 
         Object.keys(config.statusMap).forEach(function(key) {
             html += '<button type="button" class="tfb-note-card__status-option' + (selectedStatus === key ? ' is-active' : '') + '" data-role="status-option" data-value="' + escapeHtml(key) + '"><span>' + escapeHtml(config.statusMap[key]) + '</span></button>';
@@ -282,28 +315,28 @@ HTML;
     }
 
     function renderColorOptions(selectedColor) {
-        var html = '<div class="tfb-note-card__field"><div class="tfb-note-card__label">Цвет</div><div class="tfb-note-card__color-row">';
+        var html = '<div class="tfb-note-card__field"><div class="tfb-note-card__label">' + escapeHtml(messages.colorLabel || '') + '</div><div class="tfb-note-card__color-row">';
 
         Object.keys(config.colorPresets).forEach(function(key) {
             var preset = config.colorPresets[key];
             html += '<button type="button" class="tfb-note-card__swatch' + (selectedColor === key ? ' is-active' : '') + '" data-role="color-option" data-value="' + escapeHtml(key) + '" title="' + escapeHtml(preset.label) + '" style="background:' + escapeHtml(preset.value) + ';"></button>';
         });
 
-        html += '<label class="tfb-note-card__color-picker-wrap" style="--tfb-picker-value:' + escapeHtml(getResolvedColor(selectedColor)) + ';" title="Свой цвет">';
-        html += '<input type="color" class="tfb-note-card__color-picker" data-role="color-picker" value="' + escapeHtml(getResolvedColor(selectedColor)) + '" title="Свой цвет">';
+        html += '<label class="tfb-note-card__color-picker-wrap" style="--tfb-picker-value:' + escapeHtml(getResolvedColor(selectedColor)) + ';" title="' + escapeHtml(messages.customColorTitle || '') + '">';
+        html += '<input type="color" class="tfb-note-card__color-picker" data-role="color-picker" value="' + escapeHtml(getResolvedColor(selectedColor)) + '" title="' + escapeHtml(messages.customColorTitle || '') + '">';
         html += '</label>';
-        html += '</div><div class="tfb-note-card__color-help">Можно выбрать один из готовых цветов или поставить свой.</div></div>';
+        html += '</div><div class="tfb-note-card__color-help">' + escapeHtml(messages.colorHelp || '') + '</div></div>';
 
         return html;
     }
 
     function renderStatusMark(noteStatus) {
         if (noteStatus === 'important') {
-            return '<div class="tfb-note-card__mark tfb-note-card__mark--important">Важное</div>';
+            return '<div class="tfb-note-card__mark tfb-note-card__mark--important">' + escapeHtml(messages.markImportant || '') + '</div>';
         }
 
         if (noteStatus === 'future') {
-            return '<div class="tfb-note-card__mark tfb-note-card__mark--future">Сделать в будущем</div>';
+            return '<div class="tfb-note-card__mark tfb-note-card__mark--future">' + escapeHtml(messages.markFuture || '') + '</div>';
         }
 
         return '';
@@ -436,7 +469,7 @@ HTML;
         if (compactPublic || emptyState) {
             html += '<div class="' + classes + '" style="' + cardStyle(visualColor) + '">';
             html += '<div class="tfb-note-card__actions">';
-            html += '<button type="button" class="tfb-note-card__btn" data-role="edit">+ Добавить заметку</button>';
+            html += '<button type="button" class="tfb-note-card__btn" data-role="edit">' + escapeHtml(messages.addNoteButton || '') + '</button>';
             html += '</div>';
             html += '</div>';
             root.innerHTML = html;
@@ -446,7 +479,7 @@ HTML;
 
         html += '<div class="' + classes + '" style="' + cardStyle(visualColor) + '">';
         html += '<div class="tfb-note-card__head"><div class="tfb-note-card__head-main">';
-        html += '<div class="tfb-note-card__title-row"><div class="tfb-note-card__title">Заметка для этой страницы</div><a class="tfb-note-card__title-link" href="' + escapeHtml(config.notesListUrl) + '">Список заметок</a></div>';
+        html += '<div class="tfb-note-card__title-row"><div class="tfb-note-card__title">' + escapeHtml(messages.title || '') + '</div><a class="tfb-note-card__title-link" href="' + escapeHtml(config.notesListUrl) + '">' + escapeHtml(messages.listLink || '') + '</a></div>';
         if (state.editing) {
             html += '<div class="tfb-note-card__meta">' + escapeHtml(state.currentUrl) + '</div>';
         }
@@ -454,19 +487,19 @@ HTML;
 
         if (state.noteText && !state.editing) {
             html += '<div class="tfb-note-card__text tfb-note-card__text--with-fab">' + noteHtml(state.noteText) + '</div>';
-            html += '<button type="button" class="tfb-note-card__fab" data-role="edit" title="Редактировать">' + renderEditIcon() + '</button>';
+            html += '<button type="button" class="tfb-note-card__fab" data-role="edit" title="' + escapeHtml(messages.editTitle || '') + '">' + renderEditIcon() + '</button>';
         }
 
         if (!state.noteText && !state.editing) {
             html += '<div class="tfb-note-card__toolbar"><div class="tfb-note-card__actions">';
-            html += '<button type="button" class="tfb-note-card__btn" data-role="edit">+ Добавить</button>';
+            html += '<button type="button" class="tfb-note-card__btn" data-role="edit">' + escapeHtml(messages.addButton || '') + '</button>';
             html += '</div></div>';
         } else if (state.editing) {
             html += '<div class="tfb-note-card__toolbar"><div class="tfb-note-card__actions">';
-            html += '<button type="button" class="tfb-note-card__btn" data-role="save">' + (state.loading ? 'Сохраняю...' : 'Сохранить') + '</button>';
-            html += '<button type="button" class="tfb-note-card__btn tfb-note-card__btn--light" data-role="cancel">Отмена</button>';
+            html += '<button type="button" class="tfb-note-card__btn" data-role="save">' + escapeHtml(state.loading ? (messages.saveProgress || '') : (messages.saveButton || '')) + '</button>';
+            html += '<button type="button" class="tfb-note-card__btn tfb-note-card__btn--light" data-role="cancel">' + escapeHtml(messages.cancelButton || '') + '</button>';
             if (state.noteText) {
-                html += '<button type="button" class="tfb-note-card__btn tfb-note-card__btn--danger" data-role="delete">Удалить</button>';
+                html += '<button type="button" class="tfb-note-card__btn tfb-note-card__btn--danger" data-role="delete">' + escapeHtml(messages.deleteButton || '') + '</button>';
             }
             html += '</div></div>';
         }
@@ -547,7 +580,7 @@ HTML;
                     state.loading = false;
 
                     if (!response || !response.success) {
-                        setFeedback((response && response.message) ? response.message : 'Не удалось сохранить заметку.', true);
+                        setFeedback((response && response.message) ? response.message : (messages.saveFailed || ''), true);
                         return;
                     }
 
@@ -560,17 +593,17 @@ HTML;
                     state.draftStatus = state.noteStatus;
                     state.draftColor = state.noteColor;
                     state.editing = false;
-                    setFeedback(state.noteText ? 'Заметка сохранена.' : 'Заметка удалена.');
+                    setFeedback(state.noteText ? (messages.noteSaved || '') : (messages.noteDeleted || ''));
                 }).catch(function() {
                     state.loading = false;
-                    setFeedback('Ошибка при сохранении заметки.', true);
+                    setFeedback(messages.saveError || '', true);
                 });
             });
         }
 
         if (deleteButton) {
             deleteButton.addEventListener('click', function() {
-                if (state.loading || !window.confirm('Удалить заметку для этой страницы?')) {
+                if (state.loading || !window.confirm(messages.deleteConfirm || '')) {
                     return;
                 }
 
@@ -581,7 +614,7 @@ HTML;
                     state.loading = false;
 
                     if (!response || !response.success) {
-                        setFeedback((response && response.message) ? response.message : 'Не удалось удалить заметку.', true);
+                        setFeedback((response && response.message) ? response.message : (messages.deleteFailed || ''), true);
                         return;
                     }
 
@@ -594,10 +627,10 @@ HTML;
                     state.draftStatus = 'default';
                     state.draftColor = 'sand';
                     state.editing = false;
-                    setFeedback('Заметка удалена.');
+                    setFeedback(messages.noteDeleted || '');
                 }).catch(function() {
                     state.loading = false;
-                    setFeedback('Ошибка при удалении заметки.', true);
+                    setFeedback(messages.deleteError || '', true);
                 });
             });
         }

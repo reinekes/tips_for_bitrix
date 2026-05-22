@@ -1,1 +1,6 @@
 .DS_Store
+*.zip
+*.tar.gz
+.last_version/
+last_version/
+dist/

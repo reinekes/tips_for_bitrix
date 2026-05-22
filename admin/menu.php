@@ -9,14 +9,14 @@ if (!$USER->IsAdmin()) {
 }
 
 return array(
-    'parent_menu' => 'global_menu_settings',
-    'section' => 'tips_for_bitrix',
-    'sort' => 1,
+    'parent_menu' => 'global_menu_services',
+    'section' => 'reineke_tipsforbitrix',
+    'sort' => 900,
     'text' => Loc::getMessage('TFB_MENU_TITLE'),
     'title' => Loc::getMessage('TFB_MENU_TITLE'),
     'icon' => 'default_menu_icon',
     'page_icon' => 'default_menu_icon',
-    'items_id' => 'menu_tips_for_bitrix',
+    'items_id' => 'menu_reineke_tipsforbitrix',
     'items' => array(
         array(
             'text' => Loc::getMessage('TFB_MENU_NOTES'),

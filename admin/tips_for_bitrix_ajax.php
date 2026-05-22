@@ -1,10 +1,13 @@
 <?php
 
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
 use TipsForBitrix\Manager;
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_before.php';
+
+Loc::loadMessages(__FILE__);
 
 global $USER;
 
@@ -16,19 +19,19 @@ $result = array(
 
 try {
     if (!Loader::includeModule('reineke.tipsforbitrix')) {
-        throw new RuntimeException('Модуль reineke.tipsforbitrix не подключен.');
+        throw new RuntimeException(Loc::getMessage('TFB_AJAX_MODULE_NOT_INCLUDED'));
     }
 
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        throw new RuntimeException('Некорректный тип запроса.');
+        throw new RuntimeException(Loc::getMessage('TFB_AJAX_BAD_REQUEST_METHOD'));
     }
 
     if (!Manager::canManageNotes()) {
-        throw new RuntimeException('Недостаточно прав.');
+        throw new RuntimeException(Loc::getMessage('TFB_AJAX_ACCESS_DENIED'));
     }
 
     if (!check_bitrix_sessid()) {
-        throw new RuntimeException('Сессия истекла, обновите страницу.');
+        throw new RuntimeException(Loc::getMessage('TFB_AJAX_SESSION_EXPIRED'));
     }
 
     $action = isset($_POST['action']) ? (string) $_POST['action'] : '';
@@ -64,7 +67,7 @@ try {
         $result['noteStatus'] = 'default';
         $result['noteColor'] = 'sand';
     } else {
-        throw new RuntimeException('Неизвестное действие.');
+        throw new RuntimeException(Loc::getMessage('TFB_AJAX_UNKNOWN_ACTION'));
     }
 } catch (Throwable $exception) {
     $result['message'] = $exception->getMessage();

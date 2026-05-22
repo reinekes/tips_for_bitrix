@@ -1,22 +1,25 @@
 <?php
 
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\DateTime;
 use TipsForBitrix\NoteTable;
 use TipsForBitrix\Manager;
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php';
 
+Loc::loadMessages(__FILE__);
+
 global $APPLICATION;
 global $USER;
 
 if (!$USER->IsAdmin()) {
-    $APPLICATION->AuthForm('Доступ запрещен');
+    $APPLICATION->AuthForm(Loc::getMessage('TFB_NOTES_ACCESS_DENIED'));
 }
 
 if (!Loader::includeModule('reineke.tipsforbitrix')) {
     require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_after.php';
-    echo '<div class="adm-info-message-wrap"><div class="adm-info-message">Модуль reineke.tipsforbitrix не подключен.</div></div>';
+    echo '<div class="adm-info-message-wrap"><div class="adm-info-message">' . htmlspecialcharsbx(Loc::getMessage('TFB_NOTES_MODULE_NOT_INCLUDED')) . '</div></div>';
     require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_admin.php';
     return;
 }
@@ -27,6 +30,10 @@ $lang = defined('LANGUAGE_ID') ? LANGUAGE_ID : 'ru';
 $listPageUrl = 'reineke_tipsforbitrix_notes.php?lang=' . urlencode($lang);
 $statusMap = Manager::getStatusMap();
 $colorPresets = Manager::getColorPresets();
+$areaLabels = array(
+    'admin' => Loc::getMessage('TFB_NOTES_AREA_ADMIN'),
+    'public' => Loc::getMessage('TFB_NOTES_AREA_PUBLIC'),
+);
 $editNote = null;
 $editError = '';
 $isUpdated = isset($_GET['updated']) && $_GET['updated'] === 'Y';
@@ -41,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tfb_save_note']) && c
     $existingNote = NoteTable::getByPrimary($editId)->fetch();
 
     if (!$existingNote) {
-        $editError = 'Заметка не найдена.';
+        $editError = Loc::getMessage('TFB_NOTES_NOTE_NOT_FOUND');
     } else {
         $noteText = trim((string) $_POST['NOTE_TEXT']);
         $noteStatus = Manager::normalizeStatus(isset($_POST['STATUS']) ? (string) $_POST['STATUS'] : 'default');
@@ -51,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tfb_save_note']) && c
         $noteColor = Manager::normalizeColor($noteColor);
 
         if ($noteText === '') {
-            $editError = 'Текст заметки не может быть пустым.';
+            $editError = Loc::getMessage('TFB_NOTES_TEXT_REQUIRED');
         } else {
             $result = NoteTable::update(
                 $editId,
@@ -81,7 +88,7 @@ if (!$editNote && isset($_GET['action'], $_GET['ID']) && $_GET['action'] === 'ed
     $editNote = NoteTable::getByPrimary((int) $_GET['ID'])->fetch();
 
     if (!$editNote) {
-        $editError = 'Заметка не найдена.';
+        $editError = Loc::getMessage('TFB_NOTES_NOTE_NOT_FOUND');
     }
 }
 
@@ -94,7 +101,7 @@ $notes = NoteTable::getList(
     )
 )->fetchAll();
 
-$APPLICATION->SetTitle('Заметки по страницам');
+$APPLICATION->SetTitle(Loc::getMessage('TFB_NOTES_TITLE'));
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_after.php';
 ?>
@@ -135,12 +142,12 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_ad
 </style>
 <div class="adm-info-message-wrap">
     <div class="adm-info-message">
-        Здесь собраны все заметки, которые были добавлены прямо со страниц. Основной сценарий работы: открыть нужную страницу и нажать "Добавить" или "Редактировать".
+        <?php echo htmlspecialcharsbx(Loc::getMessage('TFB_NOTES_INFO')); ?>
     </div>
 </div>
 
 <?php if ($isUpdated): ?>
-    <?php echo CAdminMessage::ShowNote('Заметка обновлена.'); ?>
+    <?php echo CAdminMessage::ShowNote(Loc::getMessage('TFB_NOTES_UPDATED')); ?>
 <?php endif; ?>
 
 <?php if ($editError !== ''): ?>
@@ -154,11 +161,11 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_ad
     $editColorCustom = isset($colorPresets[$editColor]) ? $colorPresets[$editColor]['value'] : Manager::resolveColorValue($editColor);
     ?>
     <div class="tfb-note-edit">
-        <h2 class="tfb-note-edit__title">Редактирование заметки #<?php echo (int) $editNote['ID']; ?></h2>
+        <h2 class="tfb-note-edit__title"><?php echo htmlspecialcharsbx(Loc::getMessage('TFB_NOTES_EDIT_TITLE', array('#ID#' => (int) $editNote['ID']))); ?></h2>
         <div class="tfb-note-edit__meta">
-            <div class="tfb-note-edit__meta-label">Область</div>
-            <div class="tfb-note-edit__meta-value"><?php echo htmlspecialcharsbx($editNote['AREA'] === 'admin' ? 'Админка' : 'Публичная часть'); ?></div>
-            <div class="tfb-note-edit__meta-label">Страница</div>
+            <div class="tfb-note-edit__meta-label"><?php echo htmlspecialcharsbx(Loc::getMessage('TFB_NOTES_AREA_LABEL')); ?></div>
+            <div class="tfb-note-edit__meta-value"><?php echo htmlspecialcharsbx($areaLabels[$editNote['AREA'] === 'admin' ? 'admin' : 'public']); ?></div>
+            <div class="tfb-note-edit__meta-label"><?php echo htmlspecialcharsbx(Loc::getMessage('TFB_NOTES_PAGE_LABEL')); ?></div>
             <div class="tfb-note-edit__meta-value">
                 <a href="<?php echo htmlspecialcharsbx((string) $editNote['PAGE_URL']); ?>" target="_blank"><?php echo htmlspecialcharsbx((string) $editNote['PAGE_URL']); ?></a>
             </div>
@@ -168,7 +175,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_ad
             <input type="hidden" name="ID" value="<?php echo (int) $editNote['ID']; ?>">
             <div class="tfb-note-edit__row">
                 <div class="tfb-note-edit__field">
-                    <label class="tfb-note-edit__label" for="tfb-status">Статус</label>
+                    <label class="tfb-note-edit__label" for="tfb-status"><?php echo htmlspecialcharsbx(Loc::getMessage('TFB_NOTES_STATUS_LABEL')); ?></label>
                     <select class="tfb-note-edit__select" id="tfb-status" name="STATUS">
                         <?php foreach ($statusMap as $statusKey => $statusLabel): ?>
                             <option value="<?php echo htmlspecialcharsbx($statusKey); ?>"<?php echo ((string) $editNote['STATUS'] === (string) $statusKey ? ' selected' : ''); ?>>
@@ -178,28 +185,28 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_ad
                     </select>
                 </div>
                 <div class="tfb-note-edit__field">
-                    <label class="tfb-note-edit__label" for="tfb-color-preset">Цвет</label>
+                    <label class="tfb-note-edit__label" for="tfb-color-preset"><?php echo htmlspecialcharsbx(Loc::getMessage('TFB_NOTES_COLOR_LABEL')); ?></label>
                     <select class="tfb-note-edit__select" id="tfb-color-preset" name="COLOR_PRESET">
                         <?php foreach ($colorPresets as $presetKey => $preset): ?>
                             <option value="<?php echo htmlspecialcharsbx($presetKey); ?>" data-color="<?php echo htmlspecialcharsbx($preset['value']); ?>"<?php echo ($editColorPreset === $presetKey ? ' selected' : ''); ?>>
                                 <?php echo htmlspecialcharsbx($preset['label']); ?>
                             </option>
                         <?php endforeach; ?>
-                        <option value="__custom__"<?php echo ($editColorPreset === '__custom__' ? ' selected' : ''); ?>>Свой цвет</option>
+                        <option value="__custom__"<?php echo ($editColorPreset === '__custom__' ? ' selected' : ''); ?>><?php echo htmlspecialcharsbx(Loc::getMessage('TFB_NOTES_CUSTOM_COLOR_OPTION')); ?></option>
                     </select>
                 </div>
                 <div class="tfb-note-edit__field">
-                    <label class="tfb-note-edit__label" for="tfb-color-custom">Свой цвет</label>
+                    <label class="tfb-note-edit__label" for="tfb-color-custom"><?php echo htmlspecialcharsbx(Loc::getMessage('TFB_NOTES_CUSTOM_COLOR_LABEL')); ?></label>
                     <input class="tfb-note-edit__color" id="tfb-color-custom" type="color" name="COLOR_CUSTOM" value="<?php echo htmlspecialcharsbx($editColorCustom); ?>">
                 </div>
             </div>
             <div class="tfb-note-edit__field">
-                <label class="tfb-note-edit__label" for="tfb-note-text">Текст заметки</label>
+                <label class="tfb-note-edit__label" for="tfb-note-text"><?php echo htmlspecialcharsbx(Loc::getMessage('TFB_NOTES_TEXT_LABEL')); ?></label>
                 <textarea class="tfb-note-edit__textarea" id="tfb-note-text" name="NOTE_TEXT"><?php echo htmlspecialcharsbx((string) $editNote['NOTE_TEXT']); ?></textarea>
             </div>
             <div class="tfb-note-edit__actions">
-                <input class="adm-btn-save" type="submit" name="tfb_save_note" value="Сохранить">
-                <a class="adm-btn" href="<?php echo htmlspecialcharsbx($listPageUrl); ?>">Отмена</a>
+                <input class="adm-btn-save" type="submit" name="tfb_save_note" value="<?php echo htmlspecialcharsbx(Loc::getMessage('TFB_NOTES_SAVE_BUTTON')); ?>">
+                <a class="adm-btn" href="<?php echo htmlspecialcharsbx($listPageUrl); ?>"><?php echo htmlspecialcharsbx(Loc::getMessage('TFB_NOTES_CANCEL_BUTTON')); ?></a>
             </div>
         </form>
         <script>
@@ -231,7 +238,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_ad
 <div class="tfb-note-list-summary">
     <div class="tfb-note-list-summary__item">
         <span class="tfb-note-list-summary__value"><?php echo count($notes); ?></span>
-        <span class="tfb-note-list-summary__label">Всего заметок</span>
+        <span class="tfb-note-list-summary__label"><?php echo htmlspecialcharsbx(Loc::getMessage('TFB_NOTES_TOTAL_LABEL')); ?></span>
     </div>
 </div>
 
@@ -248,20 +255,20 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_ad
     </colgroup>
     <thead>
         <tr class="adm-list-table-header">
-            <td class="adm-list-table-cell">ID</td>
-            <td class="adm-list-table-cell">Область</td>
-            <td class="adm-list-table-cell">Статус</td>
-            <td class="adm-list-table-cell">Цвет</td>
-            <td class="adm-list-table-cell">URL</td>
-            <td class="adm-list-table-cell">Текст</td>
-            <td class="adm-list-table-cell">Обновлено</td>
-            <td class="adm-list-table-cell">Действия</td>
+            <td class="adm-list-table-cell"><?php echo htmlspecialcharsbx(Loc::getMessage('TFB_NOTES_HEADER_ID')); ?></td>
+            <td class="adm-list-table-cell"><?php echo htmlspecialcharsbx(Loc::getMessage('TFB_NOTES_HEADER_AREA')); ?></td>
+            <td class="adm-list-table-cell"><?php echo htmlspecialcharsbx(Loc::getMessage('TFB_NOTES_HEADER_STATUS')); ?></td>
+            <td class="adm-list-table-cell"><?php echo htmlspecialcharsbx(Loc::getMessage('TFB_NOTES_HEADER_COLOR')); ?></td>
+            <td class="adm-list-table-cell"><?php echo htmlspecialcharsbx(Loc::getMessage('TFB_NOTES_HEADER_URL')); ?></td>
+            <td class="adm-list-table-cell"><?php echo htmlspecialcharsbx(Loc::getMessage('TFB_NOTES_HEADER_TEXT')); ?></td>
+            <td class="adm-list-table-cell"><?php echo htmlspecialcharsbx(Loc::getMessage('TFB_NOTES_HEADER_UPDATED')); ?></td>
+            <td class="adm-list-table-cell"><?php echo htmlspecialcharsbx(Loc::getMessage('TFB_NOTES_HEADER_ACTIONS')); ?></td>
         </tr>
     </thead>
     <tbody>
     <?php if (empty($notes)): ?>
         <tr class="adm-list-table-row">
-            <td class="adm-list-table-cell" colspan="8">Заметок пока нет.</td>
+            <td class="adm-list-table-cell" colspan="8"><?php echo htmlspecialcharsbx(Loc::getMessage('TFB_NOTES_EMPTY')); ?></td>
         </tr>
     <?php else: ?>
         <?php foreach ($notes as $note): ?>
@@ -273,7 +280,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_ad
 
             $pageUrl = (string) $note['PAGE_URL'];
             $statusKey = (string) ($note['STATUS'] ?: 'default');
-            $areaLabel = ($note['AREA'] === 'admin') ? 'Админка' : 'Публичная часть';
+            $areaLabel = $areaLabels[$note['AREA'] === 'admin' ? 'admin' : 'public'];
             $areaClass = ($note['AREA'] === 'admin') ? 'admin' : 'public';
             $statusLabel = isset($statusMap[$statusKey]) ? $statusMap[$statusKey] : $statusKey;
             ?>
@@ -301,14 +308,14 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_ad
                 <td class="adm-list-table-cell"><span class="tfb-note-list__text"><?php echo htmlspecialcharsbx($preview); ?></span></td>
                 <td class="adm-list-table-cell"><span class="tfb-note-list__date"><?php echo htmlspecialcharsbx((string) $note['TIMESTAMP_X']); ?></span></td>
                 <td class="adm-list-table-cell tfb-note-list__actions">
-                    <a href="<?php echo htmlspecialcharsbx($pageUrl); ?>" target="_blank">Открыть</a>
+                    <a href="<?php echo htmlspecialcharsbx($pageUrl); ?>" target="_blank"><?php echo htmlspecialcharsbx(Loc::getMessage('TFB_NOTES_ACTION_OPEN')); ?></a>
                     |
-                    <a href="<?php echo htmlspecialcharsbx($APPLICATION->GetCurPageParam('action=edit&ID=' . (int) $note['ID'], array('action', 'ID', 'updated'))); ?>">Редактировать</a>
+                    <a href="<?php echo htmlspecialcharsbx($APPLICATION->GetCurPageParam('action=edit&ID=' . (int) $note['ID'], array('action', 'ID', 'updated'))); ?>"><?php echo htmlspecialcharsbx(Loc::getMessage('TFB_NOTES_ACTION_EDIT')); ?></a>
                     |
                     <a
                         href="<?php echo htmlspecialcharsbx($APPLICATION->GetCurPageParam('action=delete&ID=' . (int) $note['ID'] . '&' . bitrix_sessid_get(), array('action', 'ID', 'sessid'))); ?>"
-                        onclick="return confirm('Удалить заметку?');"
-                    >Удалить</a>
+                        onclick="return confirm('<?php echo CUtil::JSEscape(Loc::getMessage('TFB_NOTES_DELETE_CONFIRM')); ?>');"
+                    ><?php echo htmlspecialcharsbx(Loc::getMessage('TFB_NOTES_ACTION_DELETE')); ?></a>
                 </td>
             </tr>
         <?php endforeach; ?>
